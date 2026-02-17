@@ -64,3 +64,4 @@ uvicorn==0.33.0
 watchdog==4.0.2
 wrapt==2.0.1
 zipp==3.20.2
+setuptools==79.0.1
