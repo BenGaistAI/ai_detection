@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Detection Model</title>
+    <title>AI Detection</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -44,12 +44,77 @@
             width: 100%;
             max-width: 650px;
             text-align: center;
+            position: relative;
         }
 
+        /* --- Tooltip Styles --- */
+        .info-tooltip {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .info-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        .info-tooltip:hover .info-icon {
+            background: var(--neon-blue-grad);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .info-text {
+            position: absolute;
+            top: 200%;
+            right: 0;
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            font-size: 13px;
+            color: var(--text-primary);
+            text-align: left;
+            border: 1px solid var(--glass-border);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            pointer-events: none;
+        }
+
+        .info-tooltip:hover .info-text {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .info-section { margin-bottom: 15px; }
+        .info-section:last-child { margin-bottom: 0; }
+        .info-text p { margin: 4px 0; line-height: 1.4; }
+        .info-text strong { color: #4facfe; }
+
+        /* --- Rest of the UI Styles --- */
         h2 {
             margin-top: 0;
             font-weight: 900;
-            font-size: 36px;
+            font-size: 48px; 
             margin-bottom: 10px;
             background: var(--neon-blue-grad);
             -webkit-background-clip: text;
@@ -78,39 +143,18 @@
             transition: all 0.3s ease;
             color: var(--text-primary);
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            /* תמיכה בעיצוב גלילה לדפדפני פיירפוקס */
             scrollbar-width: thin;
             scrollbar-color: rgba(79, 172, 254, 0.6) transparent;
         }
 
-        /* --- עיצוב פס הגלילה המותאם אישית --- */
-        textarea::-webkit-scrollbar {
-            width: 8px; /* רובי פס הגלילה */
-        }
-
-        textarea::-webkit-scrollbar-track {
-            background: transparent; /* מסילה שקופה */
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        textarea::-webkit-scrollbar-thumb {
-            background-color: rgba(79, 172, 254, 0.4); /* צבע כחול עדין לפס */
-            border-radius: 10px; /* פינות עגולות */
-        }
-
-        textarea::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(79, 172, 254, 0.8); /* צבע חזק יותר במעבר עכבר */
-        }
-        /* ------------------------------------ */
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-thumb { background-color: rgba(79, 172, 254, 0.4); border-radius: 10px; }
 
         textarea:focus {
             background-color: #ffffff;
             border-color: #4facfe;
             box-shadow: 0 0 20px rgba(79, 172, 254, 0.2);
         }
-
-        textarea::placeholder { color: #94a3b8; }
 
         button {
             background: var(--neon-blue-grad);
@@ -129,18 +173,7 @@
             text-transform: uppercase;
         }
 
-        button:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 30px -5px rgba(79, 172, 254, 0.6);
-        }
-
-        button:disabled {
-            background: #cbd5e1;
-            color: #f8fafc;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
+        button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 30px -5px rgba(79, 172, 254, 0.6); }
 
         #result-wrapper {
             margin-top: 40px;
@@ -167,18 +200,8 @@
             box-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
         }
 
-        svg {
-            transform: rotate(-90deg);
-            width: 100%;
-            height: 100%;
-        }
-
-        .bg-circle {
-            fill: none;
-            stroke: #f1f5f9; 
-            stroke-width: 16;
-        }
-
+        svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .bg-circle { fill: none; stroke: #f1f5f9; stroke-width: 16; }
         .progress-circle {
             fill: none;
             stroke-width: 16;
@@ -191,46 +214,45 @@
 
         .inner-circle-content {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .result-title {
-            font-size: 32px; 
-            font-weight: 900;
-            line-height: 1.2;
-            margin-bottom: 2px;
-            letter-spacing: 1px;
-        }
-
-        .percentage {
-            font-size: 26px; 
-            font-weight: 700;
-            line-height: 1;
-        }
+        .result-title { font-size: 32px; font-weight: 900; line-height: 1.2; letter-spacing: 1px; }
+        .percentage { font-size: 26px; font-weight: 700; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0.8); opacity: 0.5; }
-        }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>AI DETECTION MODEL</h2>
-        <p class="subtitle">Advanced linguistic analysis to determine origin probability.</p>
+        <div class="info-tooltip">
+            <div class="info-icon">?</div>
+            <div class="info-text">
+                <div class="info-section">
+                    <strong>AI Detection</strong>
+                    <p>This is a Magshimim AI final project.</p>
+                </div>
+                
+                <div class="info-section">
+                    <p><strong>Created by:</strong> Ben Gaist & Dolev Rapaport</p>
+                    <p><strong>Instructed by:</strong> Gal Ben Maman</p>
+                    <p><strong>Mentor:</strong> Ben Ganon</p>
+                </div>
+
+                <div class="info-section">
+                    <strong>About this project:</strong>
+                    <p>This project is designed to analyze text and determine whether it was generated by an AI or written by a human. The model specializes in detecting essay-type text.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2>AI Detection</h2>
+        <p class="subtitle">analysis to determine origin of text.</p>
         
-        <textarea id="userInput" placeholder="Awaiting text payload input..."></textarea>
+        <textarea id="userInput" placeholder="Enter text to analyze..."></textarea>
         <button id="checkBtn" onclick="sendText()">INITIALIZE SCAN</button>
         
         <div id="loading" class="loader"></div>
@@ -267,9 +289,7 @@
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 const easeProgress = 1 - Math.pow(1 - progress, 3); 
                 obj.innerHTML = Math.floor(easeProgress * (end - start) + start) + "%";
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
+                if (progress < 1) window.requestAnimationFrame(step);
             };
             window.requestAnimationFrame(step);
         }
@@ -299,20 +319,15 @@
                 });
 
                 const data = await response.json();
-                const prediction = data.prediction;
-                const confidence = data.confidence; 
-                
                 loader.style.display = "none";
                 resultWrapper.style.display = "flex";
 
                 let activeGradient = "";
-
-                if (prediction === "AI") {
+                if (data.prediction === "AI") {
                     statusText.innerText = "AI";
                     progressCircle.style.stroke = "url(#ai-gradient)";
                     progressCircle.style.color = "#ff416c"; 
                     activeGradient = "linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)";
-                    
                 } else {
                     statusText.innerText = "HUMAN";
                     progressCircle.style.stroke = "url(#human-gradient)";
@@ -323,17 +338,16 @@
                 statusText.style.background = activeGradient;
                 statusText.style.webkitBackgroundClip = "text";
                 statusText.style.webkitTextFillColor = "transparent";
-                
                 percentageText.style.background = activeGradient;
                 percentageText.style.webkitBackgroundClip = "text";
                 percentageText.style.webkitTextFillColor = "transparent";
 
                 const circumference = 578;
-                const offset = circumference - (confidence / 100) * circumference;
+                const offset = circumference - (data.confidence / 100) * circumference;
                 
                 setTimeout(() => {
                     progressCircle.style.strokeDashoffset = offset;
-                    animateValue(percentageText, 0, confidence, 2000);
+                    animateValue(percentageText, 0, data.confidence, 2000);
                 }, 100);
 
             } catch (error) {
