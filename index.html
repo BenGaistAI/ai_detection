@@ -312,7 +312,7 @@
             progressCircle.style.strokeDashoffset = 578; 
 
             try {
-                const response = await fetch("https://ai-detection-otpd.onrender.com", {
+                const response = await fetch("https://ai-detection1238-1.onrender.com/predict", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: text })
